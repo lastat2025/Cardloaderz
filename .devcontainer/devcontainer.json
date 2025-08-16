@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prepaid Card Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --card-bg: #ffffff;
+            --border: #bdc3c7;
+            --shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--accent);
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .system-info {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .info-card {
+            background: rgba(44, 62, 80, 0.7);
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: right;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-card h2 {
+            font-size: 0.9rem;
+            font-weight: 400;
+            margin-bottom: 5px;
+            color: #bdc3c7;
+        }
+        
+        .info-card .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            color: var(--dark);
+            margin-bottom: 25px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .card-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-header i {
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f0f4ff;
+            padding: 5px;
+            border-radius: 50px;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn {
+            padding: 14px 25px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .card-details {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+        
+        .detail-label {
+            width: 180px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .detail-value {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .card-visual {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            margin-top: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-visual::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .card-visual::after {
+            content: "";
+            position: absolute;
+            bottom: -80px;
+            left: -30px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .card-chip {
+            width: 50px;
+            height: 40px;
+            background: #c9a227;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        
+        .card-number {
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            font-family: monospace;
+        }
+        
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .card-holder, .card-expiry {
+            font-size: 0.9rem;
+        }
+        
+        .card-holder .label, .card-expiry .label {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+        
+        .card-logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .transaction-history {
+            margin-top: 30px;
+        }
+        
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .transaction-amount {
+            font-weight: 600;
+        }
+        
+        .deposit {
+            color: var(--success);
+        }
+        
+        .withdrawal {
+            color: var(--danger);
+        }
+        
+        .card-issue {
+            color: var(--accent);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .notification {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification.success {
+            background: rgba(46, 204, 113, 0.15);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            color: #27ae60;
+        }
+        
+        .notification.error {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: #c0392b;
+        }
+        
+        .notification.info {
+            background: rgba(52, 152, 219, 0.15);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            color: #2980b9;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--accent);
+            transition: transform 0.3s ease;
+        }
+        
+        .card-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .card-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .enabled {
+            background: rgba(46, 204, 113, 0.15);
+            color: #27ae60;
+        }
+        
+        .disabled {
+            background: rgba(231, 76, 60, 0.15);
+            color: #c0392b;
+        }
+        
+        .card-balance {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 10px 0;
+            color: var(--dark);
+        }
+        
+        .card-item-footer {
+            display: flex;
+            justify-content: space-between;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .admin-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .system-info {
+                flex-direction: column;
+                align-self: stretch;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-credit-card"></i>
+                <h1>Prepaid Card Management System</h1>
+            </div>
+            <div class="system-info">
+                <div class="info-card">
+                    <h2>System Balance</h2>
+                    <div class="amount">$1,000,000.00</div>
+                </div>
+                <div class="info-card">
+                    <h2>Active Cards</h2>
+                    <div class="amount">24</div>
+                </div>
+                <div class="info-card">
+                    <h2>Today's Transactions</h2>
+                    <div class="amount">$42,580.00</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="section-title">
+            <i class="fas fa-id-card"></i>
+            <h2>Card Management</h2>
+        </div>
+        
+        <div class="card-grid">
+            <div class="card-item">
+                <div class="card-item-header">
+                    <div class="card-number">•••• •••• •••• 4512</div>
+                    <div class="card-status enabled">Active</div>
+                </div>
+                <div class="card-holder">John Smith</div>
+                <div class="card-balance">$2,450.00</div>
+                <div class="card-item-footer">
+                    <div class="card-expiry">Exp: 05/2025</div>
+                    <div class="card-type">VISA</div>
+                </div>
+            </div>
+            
+            <div class="card-item">
+                <div class="card-item-header">
+                    <div class="card-number">•••• •••• •••• 7821</div>
+                    <div class="card-status enabled">Active</div>
+                </div>
+                <div class="card-holder">Sarah Johnson</div>
+                <div class="card-balance">$5,200.00</div>
+                <div class="card-item-footer">
+                    <div class="card-expiry">Exp: 11/2026</div>
+                    <div class="card-type">MasterCard</div>
+                </div>
+            </div>
+            
+            <div class="card-item">
+                <div class="card-item-header">
+                    <div class="card-number">•••• •••• •••• 3098</div>
+                    <div class="card-status disabled">Inactive</div>
+                </div>
+                <div class="card-holder">Michael Brown</div>
+                <div class="card-balance">$0.00</div>
+                <div class="card-item-footer">
+                    <div class="card-expiry">Exp: 08/2024</div>
+                    <div class="card-type">VISA</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-plus-circle"></i> Create New Card</h2>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="cardholder">Cardholder Name</label>
+                    <input type="text" id="cardholder" class="form-control" placeholder="Enter full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="initialBalance">Initial Balance ($)</label>
+                    <input type="number" id="initialBalance" class="form-control" placeholder="Enter amount" min="0" step="0.01" value="500">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="cardPin">PIN (4 digits)</label>
+                    <input type="password" id="cardPin" class="form-control" placeholder="••••" maxlength="4" value="1234">
+                </div>
+                
+                <div class="form-group">
+                    <label for="securityCode">Security Code (3 digits)</label>
+                    <input type="password" id="securityCode" class="form-control" placeholder="•••" maxlength="3" value="123">
+                </div>
+                
+                <div class="form-group">
+                    <label for="expiryDate">Expiry Date</label>
+                    <input type="month" id="expiryDate" class="form-control">
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="createCardBtn">
+                    <i class="fas fa-plus"></i> Create Card
+                </button>
+                <button class="btn btn-warning" id="resetFormBtn">
+                    <i class="fas fa-redo"></i> Reset Form
+                </button>
+            </div>
+            
+            <div id="cardPreview" class="hidden">
+                <div class="card-visual">
+                    <div class="card-logo">
+                        <i class="fab fa-cc-visa"></i>
+                    </div>
+                    <div class="card-chip"></div>
+                    <div class="card-number" id="previewCardNumber">•••• •••• •••• ••••</div>
+                    <div class="card-info">
+                        <div class="card-holder">
+                            <div class="label">Cardholder</div>
+                            <div id="previewCardholder">John Doe</div>
+                        </div>
+                        <div class="card-expiry">
+                            <div class="label">Expires</div>
+                            <div id="previewExpiry">••/••</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Card Number</div>
+                        <div class="detail-value" id="detailCardNumber"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">PIN</div>
+                        <div class="detail-value" id="detailPin"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Security Code</div>
+                        <div class="detail-value" id="detailSecurityCode"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Expiry Date</div>
+                        <div class="detail-value" id="detailExpiry"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Initial Balance</div>
+                        <div class="detail-value" id="detailBalance"></div>
+                    </div>
+                </div>
+                
+                <div class="notification success">
+                    <i class="fas fa-check-circle"></i>
+                    <div>Card created successfully! Please note down the card details.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-exchange-alt"></i> Transactions</h2>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="deposit">Deposit</div>
+                <div class="tab" data-tab="withdraw">Withdraw</div>
+   {
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {}
+}
